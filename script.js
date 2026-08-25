@@ -140,14 +140,14 @@ function moveSnake() {
     let newY = head.y;
 
 
-    // Change head position
+    // Move head
     if (direction === "right") newX += 31;
     if (direction === "left") newX -= 31;
     if (direction === "up") newY -= 31;
     if (direction === "down") newY += 31;
 
 
-    // WALL COLLISION
+    // Wall collision
     if (
         newX < 0 ||
         newY < 0 ||
@@ -159,7 +159,7 @@ function moveSnake() {
     }
 
 
-    // BODY COLLISION
+    // Body collision
     for (let i = 1; i < snakeParts.length; i++) {
 
         if (
@@ -172,6 +172,13 @@ function moveSnake() {
     }
 
 
+    // Check food
+    let foodX = parseInt(food.style.left);
+    let foodY = parseInt(food.style.top);
+
+    let ateFood = newX === foodX && newY === foodY;
+
+
     // Move body
     for (let i = snakeParts.length - 1; i > 0; i--) {
 
@@ -179,6 +186,7 @@ function moveSnake() {
             x: snakeParts[i - 1].x,
             y: snakeParts[i - 1].y
         };
+
     }
 
 
@@ -189,22 +197,9 @@ function moveSnake() {
     };
 
 
-    // Show head
-    snake.style.left = newX + "px";
-    snake.style.top = newY + "px";
+    // If food eaten
+    if (ateFood) {
 
-
-    // Show body
-    drawSnakeBody();
-
-
-    // FOOD COLLISION
-    let foodX = parseInt(food.style.left);
-    let foodY = parseInt(food.style.top);
-
-    if (newX === foodX && newY === foodY) {
-
-        // Add new body part
         let tail = snakeParts[snakeParts.length - 1];
 
         snakeParts.push({
@@ -212,14 +207,14 @@ function moveSnake() {
             y: tail.y
         });
 
+
         addSnakePart();
 
-        // Score
         score++;
+
         scoreText.innerHTML = `Score: ${score}`;
 
 
-        // High Score
         if (score > highScore) {
 
             highScore = score;
@@ -230,8 +225,16 @@ function moveSnake() {
         }
 
 
-        // New food
         createFood();
     }
+
+
+    // Draw head
+    snake.style.left = newX + "px";
+    snake.style.top = newY + "px";
+
+
+    // Draw body
+    drawSnakeBody();
 }
 
