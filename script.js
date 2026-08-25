@@ -1,76 +1,237 @@
-let game = document.querySelector('.game');
-let snake = document.querySelector('.snake');
-let food = document.querySelector('.food');
-let btn = document.querySelector('.new-game');
 
-btn.addEventListener('click', function () {
+let game = document.querySelector(".game");
+let snake = document.querySelector(".snake");
+let food = document.querySelector(".food");
+let btn = document.querySelector(".new-game");
+let scoreText = document.querySelector(".scc");
 
-    let cellSize = 31
-    let snakeLength = 31
-    let columns = Math.floor(game.clientWidth / cellSize)
-    let rows = Math.floor(game.clientHeight / cellSize)
+let gameOverScreen = document.querySelector(".game-over");
+let finalScore = document.querySelector(".final-score");
+let playAgain = document.querySelector(".play-again");
+let highScoreText = document.querySelector(".high-score");
 
-    let randomColumn = Math.floor(Math.random() * columns)
-    let randomRow = Math.floor(Math.random() * rows)
+let snakeParts = [];
+let score = 0;
+let direction = "right";
+let gameRunning = false;
+let gameLoop;
 
-    let randomX = randomColumn * cellSize
-    let randomY = randomRow * cellSize
-
-
-    snake.style.display = 'block'
-    snake.style.left = randomX + "px"
-    snake.style.top = randomY + "px"
-    snake.style.width = snakeLength + 'px'
-    createFood()
+let highScore = localStorage.getItem("highScore") || 0;
+highScoreText.innerHTML = `High Score: ${highScore}`;
 
 
+// START GAME
+btn.addEventListener("click", function () {
 
+    // Reset game
+    clearInterval(gameLoop);
+    gameRunning = true;
+    score = 0;
+    direction = "right";
 
+    scoreText.innerHTML = "Score: 0";
+    gameOverScreen.style.display = "none";
+
+    // Remove old body
+    document.querySelectorAll(".snake-body").forEach(function (body) {
+        body.remove();
+    });
+
+    // Random starting position
+    let x = Math.floor(Math.random() * 20) * 31;
+    let y = Math.floor(Math.random() * 13) * 31;
+
+    snakeParts = [{ x: x, y: y }];
+
+    snake.style.display = "block";
+    snake.style.width = "31px";
+    snake.style.left = x + "px";
+    snake.style.top = y + "px";
+
+    createFood();
+
+    // Start automatic movement
+    gameLoop = setInterval(moveSnake, 400);
 });
 
-function createFood() {
-    let cellSize = 31
-    let columns = Math.floor(game.clientWidth / cellSize)
-    let rows = Math.floor(game.clientHeight / cellSize)
-    let foodColumn = Math.floor(Math.random() * columns)
-    let foodRow = Math.floor(Math.random() * rows)
 
-    let randomFoodX = foodColumn * cellSize
-    let randomFoodY = foodRow * cellSize
-    food.style.display = 'block'
-    food.style.left = randomFoodX + "px"
-    food.style.top = randomFoodY + "px"
+// PLAY AGAIN
+playAgain.addEventListener("click", function () {
+    btn.click();
+});
+
+
+// CREATE FOOD
+function createFood() {
+
+    let x = Math.floor(Math.random() * 20) * 31;
+    let y = Math.floor(Math.random() * 13) * 31;
+
+    food.style.display = "block";
+    food.style.left = x + "px";
+    food.style.top = y + "px";
 }
 
 
+// CREATE BODY PART
+function addSnakePart() {
 
-document.body.addEventListener('keydown', function (elem) {
-    let snakeX = parseInt(getComputedStyle(snake).left)
-    let snakeY = parseInt(getComputedStyle(snake).top)
+    let body = document.createElement("div");
 
-    let foodX = parseInt(getComputedStyle(food).left)
-    let foodY = parseInt(getComputedStyle(food).top)
+    body.classList.add("snake-body");
 
-    if (elem.key === 'ArrowLeft') snakeX -= 31
-    if (elem.key === 'ArrowRight') snakeX += 31
-    if (elem.key === 'ArrowUp') snakeY -= 31
-    if (elem.key === 'ArrowDown') snakeY += 31
-
-    snake.style.left = snakeX + 'px'
-    snake.style.top = snakeY + 'px'
-
-    food.style.left = foodX + 'px'
-    food.style.top = foodY + 'px'
-
-    if (snakeX === foodX && snakeY === foodY) {
-        let snakeLength = snake.clientWidth
-
-        snakeLength += 31
-        snake.style.width = snakeLength + 'px'
-        createFood()
+    game.appendChild(body);
+}
 
 
+// SHOW BODY
+function drawSnakeBody() {
+
+    let bodies = document.querySelectorAll(".snake-body");
+
+    bodies.forEach(function (body, index) {
+
+        body.style.left = snakeParts[index + 1].x + "px";
+        body.style.top = snakeParts[index + 1].y + "px";
+
+    });
+}
+
+// GAME OVER
+function gameEnd() {
+
+    gameRunning = false;
+    clearInterval(gameLoop);
+
+    gameOverScreen.style.display = "flex";
+    finalScore.innerHTML = `Score: ${score}`;
+}
+
+
+// ARROW KEYS
+document.body.addEventListener("keydown", function (e) {
+
+    if (!gameRunning) return;
+
+    if (e.key === "ArrowLeft" && direction !== "right") {
+        direction = "left";
+    }
+
+    if (e.key === "ArrowRight" && direction !== "left") {
+        direction = "right";
+    }
+
+    if (e.key === "ArrowUp" && direction !== "down") {
+        direction = "up";
+    }
+
+    if (e.key === "ArrowDown" && direction !== "up") {
+        direction = "down";
+    }
+});
+
+
+// MOVE SNAKE
+function moveSnake() {
+
+    let head = snakeParts[0];
+
+    let newX = head.x;
+    let newY = head.y;
+
+
+    // Change head position
+    if (direction === "right") newX += 31;
+    if (direction === "left") newX -= 31;
+    if (direction === "up") newY -= 31;
+    if (direction === "down") newY += 31;
+
+
+    // WALL COLLISION
+    if (
+        newX < 0 ||
+        newY < 0 ||
+        newX + 31 > game.clientWidth ||
+        newY + 31 > game.clientHeight
+    ) {
+        gameEnd();
+        return;
     }
 
 
-})
+    // BODY COLLISION
+    for (let i = 1; i < snakeParts.length; i++) {
+
+        if (
+            newX === snakeParts[i].x &&
+            newY === snakeParts[i].y
+        ) {
+            gameEnd();
+            return;
+        }
+    }
+
+
+    // Move body
+    for (let i = snakeParts.length - 1; i > 0; i--) {
+
+        snakeParts[i] = {
+            x: snakeParts[i - 1].x,
+            y: snakeParts[i - 1].y
+        };
+    }
+
+
+    // Move head
+    snakeParts[0] = {
+        x: newX,
+        y: newY
+    };
+
+
+    // Show head
+    snake.style.left = newX + "px";
+    snake.style.top = newY + "px";
+
+
+    // Show body
+    drawSnakeBody();
+
+
+    // FOOD COLLISION
+    let foodX = parseInt(food.style.left);
+    let foodY = parseInt(food.style.top);
+
+    if (newX === foodX && newY === foodY) {
+
+        // Add new body part
+        let tail = snakeParts[snakeParts.length - 1];
+
+        snakeParts.push({
+            x: tail.x,
+            y: tail.y
+        });
+
+        addSnakePart();
+
+        // Score
+        score++;
+        scoreText.innerHTML = `Score: ${score}`;
+
+
+        // High Score
+        if (score > highScore) {
+
+            highScore = score;
+
+            localStorage.setItem("highScore", highScore);
+
+            highScoreText.innerHTML = `High Score: ${highScore}`;
+        }
+
+
+        // New food
+        createFood();
+    }
+}
+
