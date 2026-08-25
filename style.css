@@ -1,0 +1,88 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: monospace;
+}
+html,
+body {
+    height: 100%;
+    width: 100%;
+}
+main{
+    height: 100%;
+    width: 100%;
+    background: rgb(27, 1, 27);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.card{
+background: white;
+width: 647px;
+height: 600px;
+border-radius: 0.5rem;
+padding: 1rem;
+
+}
+.score-line{
+    width: 100%;
+    background: #b4b4b4;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+}
+.game{
+    position: relative;
+    margin-top: 1rem;
+    width: 100%;
+    height: 435px;
+    background: #000;
+    border-radius: 0.4rem;
+
+
+    background-image:
+        linear-gradient(to right, rgb(56, 55, 55) 0.5px , transparent 1px),
+        linear-gradient(to bottom, rgb(56, 55, 55) 0.5px , transparent 1px);
+
+    background-size: 31px 31px;
+}
+
+.last{
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+}
+.last button{
+    padding: 0.5rem 1rem;
+    color:white;
+    background:purple;
+    border-radius: 1rem;
+    transition: all ease 0.2s;
+    cursor: pointer;
+}
+.last button:active{
+     background:rgb(156, 47, 156);
+     transform: scale(0.90);
+}
+.snake{
+    display: none;
+    background: green;
+    width:31px;
+    height:31px;
+    position: absolute;
+}
+.food{
+    display: none;
+    width:31px;
+    height:31px;
+    position: absolute;
+    background: rgb(194, 6, 6);
+    border-radius: 50%;
+
+}
